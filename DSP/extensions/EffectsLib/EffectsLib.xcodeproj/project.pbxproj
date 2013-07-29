@@ -22,6 +22,8 @@
 		2AD7888D169CFD1C00604D7C /* EffectsLibIOS.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2AD7888C169CFD1C00604D7C /* EffectsLibIOS.h */; };
 		2AD7888F169CFD1C00604D7C /* EffectsLibIOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AD7888E169CFD1C00604D7C /* EffectsLibIOS.m */; };
 		A789657317A6C4FC0053FC83 /* EffectsLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A789657217A6C4FC0053FC83 /* EffectsLib.cpp */; };
+		A789657617A6E9740053FC83 /* TTMuteSolo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A789657517A6E9740053FC83 /* TTMuteSolo.cpp */; };
+		A789657817A6E98C0053FC83 /* TTMuteSolo.test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A789657717A6E98C0053FC83 /* TTMuteSolo.test.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -64,6 +66,9 @@
 		A752BBDA16373A47007CE627 /* TTGain.test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TTGain.test.cpp; path = tests/TTGain.test.cpp; sourceTree = "<group>"; };
 		A752BBDB16373A47007CE627 /* TTThru.test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TTThru.test.cpp; path = tests/TTThru.test.cpp; sourceTree = "<group>"; };
 		A789657217A6C4FC0053FC83 /* EffectsLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EffectsLib.cpp; sourceTree = "<group>"; };
+		A789657417A6E9600053FC83 /* TTMuteSolo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTMuteSolo.h; path = includes/TTMuteSolo.h; sourceTree = "<group>"; };
+		A789657517A6E9740053FC83 /* TTMuteSolo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTMuteSolo.cpp; path = sources/TTMuteSolo.cpp; sourceTree = "<group>"; };
+		A789657717A6E98C0053FC83 /* TTMuteSolo.test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTMuteSolo.test.cpp; path = tests/TTMuteSolo.test.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +137,7 @@
 				A752BBC616373A14007CE627 /* TTDegrade.h */,
 				A752BBC716373A14007CE627 /* TTGain.h */,
 				A752BBC816373A14007CE627 /* TTLimiter.h */,
+				A789657417A6E9600053FC83 /* TTMuteSolo.h */,
 				A752BBC916373A14007CE627 /* TTOverdrive.h */,
 				A752BBCA16373A14007CE627 /* TTPanorama.h */,
 				A752BBCB16373A14007CE627 /* TTPulseSub.h */,
@@ -148,6 +154,7 @@
 				A752BBD116373A33007CE627 /* TTDegrade.cpp */,
 				A752BBD216373A33007CE627 /* TTGain.cpp */,
 				A752BBD316373A33007CE627 /* TTLimiter.cpp */,
+				A789657517A6E9740053FC83 /* TTMuteSolo.cpp */,
 				A752BBD416373A33007CE627 /* TTOverdrive.cpp */,
 				A752BBD516373A33007CE627 /* TTPanorama.cpp */,
 				A752BBD616373A33007CE627 /* TTPulseSub.cpp */,
@@ -161,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				A752BBDA16373A47007CE627 /* TTGain.test.cpp */,
+				A789657717A6E98C0053FC83 /* TTMuteSolo.test.cpp */,
 				A752BBDB16373A47007CE627 /* TTThru.test.cpp */,
 			);
 			name = tests;
@@ -248,6 +256,8 @@
 				2A23ACF8169CFEDD004793F5 /* TTGain.test.cpp in Sources */,
 				2A23ACF9169CFEDD004793F5 /* TTThru.test.cpp in Sources */,
 				A789657317A6C4FC0053FC83 /* EffectsLib.cpp in Sources */,
+				A789657617A6E9740053FC83 /* TTMuteSolo.cpp in Sources */,
+				A789657817A6E98C0053FC83 /* TTMuteSolo.test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

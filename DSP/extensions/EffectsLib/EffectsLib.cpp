@@ -12,6 +12,7 @@
 #include "TTDegrade.h"
 #include "TTGain.h"
 #include "TTLimiter.h"
+#include "TTMuteSolo.h"
 #include "TTOverdrive.h"
 #include "TTPanorama.h"
 #include "TTPulseSub.h"
@@ -23,11 +24,12 @@ extern "C" TT_EXTENSION_EXPORT TTErr TTLoadJamomaExtension_EffectsLib(void)
 {
 	TTDSPInit();
 	
-	TTBalance::registerClass();	
-	TTDegrade::registerClass();	
-	TTGain::registerClass();	
-	TTLimiter::registerClass();	
-	TTOverdrive::registerClass();	
+	TTBalance::registerClass();
+	TTDegrade::registerClass();
+	TTGain::registerClass();
+	TTLimiter::registerClass();
+	TTMuteSolo::registerClass();
+	TTOverdrive::registerClass();
 	TTPanorama::registerClass();
 	TTPulseSub::registerClass();	
 	TTThru::registerClass();	
