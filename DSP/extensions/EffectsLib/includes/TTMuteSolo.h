@@ -25,10 +25,28 @@ class TTMuteSolo : public TTAudioObjectBase {
 private:
 	
 	TTMatrixPtr		pOldGainArray;	///< Previous array of gain values. Used for linear interpoaltion to avoid clicks.
-	TTMatrixPtr		pOldMuteArray;	///< Array of mute flags for each channel.
-	TTMatrixPtr		pOldSoloArray;	///< Array of solo flags for each channel.
-	
 	TTMatrixPtr		pTempArray;		///< Temporary array. Used to keep array content when resizing.
+	
+	
+	/** Check what the current array size is.
+	 @param x						The current number of audio signal channels
+	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
+	 */
+	TTErr checkArraySize(const TTUInt16 x);
+	
+	
+	/** Resize an array and restore its content of cells that existed before and after the resizing.
+	 @param myArray					The arry to resize and restore.
+	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
+	 */
+	TTErr resizeAndRestoreArray(TTMatrix *myArray);
+	
+	
+	/** Calculate gain coefficients based on current mute and solo settings.
+	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
+	 */
+	TTErr calculateGains();
+	
 	
 protected:
 	
@@ -49,6 +67,7 @@ protected:
 	
 	
 	/** Set the number of audio channels to process.
+	 @param newValue				The number of channels to process.
 	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
 	 */
 	TTErr setNumChannels(const TTValue& newValue);
@@ -80,26 +99,7 @@ protected:
 	TTErr clear();
 	
 	
-	/** Check what the current array size is.
-	 @param x						The current number of audio signal channels
-	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
-	 */
-	TTErr checkArraySize(const TTUInt16 x);
-	
-	
-	/** Resize an new/old pair of arrays.
-	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
-	 */
-	TTErr resizeAndRestoreArrayPair(TTMatrix *myArray, TTMatrix *oldArray);
-	
-	
-	/** Calculate gain coefficients based on current mute and solo settings.
-	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
-	 */
-	TTErr calculateGains();
-	
-	
-	/**	A standard audio processing method as used by TTBlue objects.
+	/**	A standard audio processing method as used by Jamoma DSP objects.
 	 @param	inputs				Pointer to array of input audio signals.
 	 @param outputs				Pointer to array of processaed audio signals.
 	 @return					#TTErr error code if the method fails to execute, else #kTTErrNone.

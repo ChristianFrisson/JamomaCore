@@ -14,14 +14,12 @@
 #include "TTMuteSolo.h"
 
 #define thisTTClass			TTMuteSolo
-#define thisTTClassName		"muteSolo"
+#define thisTTClassName		"mutesolo"
 #define thisTTClassTags		"audio, processor, dynamics, mixing"
 
 
 TT_AUDIO_CONSTRUCTOR,
 	pOldGainArray(NULL),
-	pOldMuteArray(NULL),
-	pOldSoloArray(NULL),
 	pTempArray(NULL),
 	mInterpolated(0),
 	mGainArray(NULL),
@@ -32,13 +30,8 @@ TT_AUDIO_CONSTRUCTOR,
 	// For convinience we'll use Nx1 matrixes as arrays
 	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&mGainArray, 0);
 	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&pOldGainArray, 0);
-	
 	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&mMuteArray, 0);
-	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&pOldMuteArray, 0);
-	
 	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&mSoloArray, 0);
-	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&pOldSoloArray, 0);
-	
 	TTObjectBaseInstantiate(kTTSym_matrix, (TTObjectBasePtr*)&pTempArray, 0);
 	
 	
@@ -52,13 +45,8 @@ TT_AUDIO_CONSTRUCTOR,
 	
 	mGainArray->setAttributeValue	(TT("type"), TT("float64"));
 	pOldGainArray->setAttributeValue	(TT("type"), TT("float64"));
-	
 	mMuteArray->setAttributeValue	(TT("type"), TT("float64"));
-	pOldMuteArray->setAttributeValue	(TT("type"), TT("float64"));
-	
 	mSoloArray->setAttributeValue	(TT("type"), TT("float64"));
-	pOldSoloArray->setAttributeValue	(TT("type"), TT("float64"));
-	
 	pTempArray->setAttributeValue	(TT("type"), TT("float64"));
 	
 	// Initally the dimension of all arrays is set to (1,1)
@@ -66,13 +54,8 @@ TT_AUDIO_CONSTRUCTOR,
 	
 	mGainArray->setAttributeValue(TT("dimensions"), v);
 	pOldGainArray->setAttributeValue(TT("dimensions"), v);
-	
 	mMuteArray->setAttributeValue(TT("dimensions"), v);
-	pOldMuteArray->setAttributeValue(TT("dimensions"), v);
-	
 	mSoloArray->setAttributeValue(TT("dimensions"), v);
-	pOldSoloArray->setAttributeValue(TT("dimensions"), v);
-	
 	pTempArray->setAttributeValue(TT("dimensions"), v);
 	
 	clear();
@@ -87,28 +70,12 @@ TTMuteSolo::~TTMuteSolo()
 	TTObjectBaseRelease((TTObjectBasePtr*)&mGainArray);
 	TTObjectBaseRelease((TTObjectBasePtr*)&pOldGainArray);
 	TTObjectBaseRelease((TTObjectBasePtr*)&mMuteArray);
-	TTObjectBaseRelease((TTObjectBasePtr*)&pOldMuteArray);
 	TTObjectBaseRelease((TTObjectBasePtr*)&mSoloArray);
-	TTObjectBaseRelease((TTObjectBasePtr*)&pOldSoloArray);
 	TTObjectBaseRelease((TTObjectBasePtr*)&pTempArray);
 }
 
 
-TTErr TTMuteSolo::clear()
-{	
-	mMuteArray->clear();
-	pOldMuteArray->clear();
-	
-	mSoloArray->clear();
-	pOldSoloArray->clear();
-	
-	/* TODO: When clearing, all gains should be set to 1. rather than 0.
-	 The best way of doing so might be to first clear mute and solo, and then recalculate gains. */
-	mGainArray->clear();
-	pOldGainArray->clear();
-	
-	return kTTErrNone;
-}
+///// Private methods: /////
 
 
 TTErr TTMuteSolo::checkArraySize(TTUInt16 x)
@@ -121,8 +88,7 @@ TTErr TTMuteSolo::checkArraySize(TTUInt16 x)
 }
 
 
-
-TTErr TTMuteSolo::resizeAndRestoreArrayPair(TTMatrix *myArray, TTMatrix *oldArray)
+TTErr TTMuteSolo::resizeAndRestoreArray(TTMatrix *myArray)
 {
 	TTValue		v(1, mNumChannels);
 	
@@ -132,11 +98,9 @@ TTErr TTMuteSolo::resizeAndRestoreArrayPair(TTMatrix *myArray, TTMatrix *oldArra
 	
 	//2: Resize
 	myArray->setAttributeValue(TT("dimensions"), v);
-	oldArray->setAttributeValue(TT("dimensions"), v);
 	
 	//3: Clear
 	myArray->clear();
-	oldArray->clear();
 	
 	//4: Element-wise copy pTempMatrix content over to myArray and oldArray
 	TTFloat64 tempValue;
@@ -150,51 +114,10 @@ TTErr TTMuteSolo::resizeAndRestoreArrayPair(TTMatrix *myArray, TTMatrix *oldArra
 	for (TTUInt16 i=0; i < channels; i++) {
 		pTempArray->get2d(0, i, tempValue);
 		myArray->set2d(   0, i, tempValue);
-		oldArray->set2d(  0, i, tempValue);
 	}
 	
 	return kTTErrNone;
 }
-
-
-TTErr TTMuteSolo::setNumChannels(const TTValue& newValue)
-{
-	TTUInt16	numChannels = newValue;
-	
-	if (numChannels != mNumChannels) {
-		mNumChannels = numChannels;
-		
-		resizeAndRestoreArrayPair(mMuteArray, pOldMuteArray);
-		resizeAndRestoreArrayPair(mSoloArray, pOldSoloArray);
-		
-		/* TODO: Gain should not be restored this way, but rather be calculated based on resized and restored properties of mute and solo. */
-		/* TODO: Should we lock processing while updating gain coefficients to ensure that they do not happen in the midst of audio processing? */
-		resizeAndRestoreArrayPair(mGainArray, pOldGainArray);
-	}
-	return kTTErrNone;
-}
-
-
-TTErr TTMuteSolo::channelMute(const TTValue& newValue, TTValue&)
-{
-	TTUInt16	channel;
-	TTFloat64	muteFlag;
-	
-	if (newValue.getSize() != 2)
-		return kTTErrWrongNumValues;
-	
-	newValue.get(0, channel);
-	newValue.get(1, muteFlag);
-	
-	checkArraySize(channel);
-    
-	mGainArray->set2d(channel, TTDecibelsToLinearGain(gainValue));
-	
-	if (mInterpolated)
-		setProcessMethod(processAudioInterpolated);
- 	return kTTErrNone;
-}
-
 
 
 TTErr TTMuteSolo::calculateGains()
@@ -225,6 +148,87 @@ TTErr TTMuteSolo::calculateGains()
 }
 
 
+///// Protected methods: /////
+
+
+TTErr TTMuteSolo::setNumChannels(const TTValue& newValue)
+{
+	TTUInt16	numChannels = newValue;
+	
+	if (numChannels != mNumChannels) {
+		mNumChannels = numChannels;
+		
+		resizeAndRestoreArray(mMuteArray);
+		resizeAndRestoreArray(mSoloArray);
+		
+		/* TODO: Should we lock processing while updating gain coefficients to ensure that they do not happen in the midst of audio processing? */
+		resizeAndRestoreArray(mGainArray);
+		resizeAndRestoreArray(pOldGainArray);
+		
+		calculateGains();
+	}
+	return kTTErrNone;
+}
+
+
+TTErr TTMuteSolo::channelMute(const TTValue& newValue, TTValue&)
+{
+	TTUInt16	channel;
+	TTFloat64	muteFlag;
+	
+	if (newValue.getSize() != 2)
+		return kTTErrWrongNumValues;
+	
+	newValue.get(0, channel);
+	newValue.get(1, muteFlag);
+	
+	checkArraySize(channel);
+    
+	mMuteArray->set2d(0, channel, muteFlag);
+	
+	calculateGains();
+	
+	if (mInterpolated)
+		setProcessMethod(processAudioInterpolated);
+ 	return kTTErrNone;
+}
+
+
+TTErr TTMuteSolo::channelSolo(const TTValue& newValue, TTValue&)
+{
+	TTUInt16	channel;
+	TTFloat64	soloFlag;
+	
+	if (newValue.getSize() != 2)
+		return kTTErrWrongNumValues;
+	
+	newValue.get(0, channel);
+	newValue.get(1, soloFlag);
+	
+	checkArraySize(channel);
+    
+	mSoloArray->set2d(0, channel, soloFlag);
+	
+	calculateGains();
+	
+	if (mInterpolated)
+		setProcessMethod(processAudioInterpolated);
+ 	return kTTErrNone;
+}
+
+
+TTErr TTMuteSolo::clear()
+{	
+	mMuteArray->clear();	
+	mSoloArray->clear();
+	
+	calculateGains();
+	TTMatrix::copy(*mGainArray, *pOldGainArray);
+	
+	return kTTErrNone;
+}
+
+
 TTErr TTMuteSolo::processAudio(TTAudioSignalArrayPtr inputs, TTAudioSignalArrayPtr outputs)
 {
 	TTAudioSignal&	in = inputs->getSignal(0);
@@ -233,13 +237,17 @@ TTErr TTMuteSolo::processAudio(TTAudioSignalArrayPtr inputs, TTAudioSignalArrayP
 	TTSampleValue	*inSample, *outSample;
 	TTUInt16		numchannels = TTAudioSignal::getMinChannelCount(in, out);
 	TTUInt16		channel;
+	TTFloat64		gain;
 
 	for (channel=0; channel<numchannels; channel++) {
 		inSample = in.mSampleVectors[channel];
 		outSample = out.mSampleVectors[channel];
+		mGainArray->get2d(0, channel, gain);
 		vs = in.getVectorSizeAsInt();
-		while (vs--)
-			*outSample++ = (*inSample++) * mGain;
+		while (vs--) {
+			//*outSample++ = (*inSample++) * gain;
+			*outSample++ = (*inSample++);
+		}
 	}
 	return kTTErrNone;
 }
@@ -253,21 +261,26 @@ TTErr TTMuteSolo::processAudioInterpolated(TTAudioSignalArrayPtr inputs, TTAudio
 	TTSampleValue	*inSample, *outSample;
 	TTUInt16		numchannels = TTAudioSignal::getMinChannelCount(in, out);
 	TTUInt16		channel;
-	TTFloat64		increment, temp;
-	increment = (mGain-oldGain)/vs;
-	TTAntiDenormal(increment);
+	TTFloat64		gain, oldGain, newGain, increment;
+	
 	
 	for (channel=0; channel<numchannels; channel++) {
 		inSample = in.mSampleVectors[channel];
 		outSample = out.mSampleVectors[channel];
 		vs = in.getVectorSizeAsInt();
-		temp = oldGain;
+		
+		mGainArray->get2d(0, channel, newGain);
+		pOldGainArray->get2d(0, channel, oldGain);
+		gain = oldGain;
+		increment = (newGain-oldGain)/vs;
+		TTAntiDenormal(increment);
+		
 		while (vs--){
-			temp = temp + increment;
-			*outSample++ = (*inSample++) * temp;			
-		}		
+			gain += increment;
+			*outSample++ = (*inSample++) * gain;
+		}
+		pOldGainArray->set2d(0, channel, gain);
 	}
-	oldGain = mGain;
 	setProcessMethod(processAudio);
 	return kTTErrNone;
 }
