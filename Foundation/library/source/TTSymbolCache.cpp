@@ -6,7 +6,6 @@
  * http://creativecommons.org/licenses/BSD/
  */
 
-#include "TTValueCache.h"
 #include "TTSymbolTable.h"
 #include "TTSymbolCache.h"
 
@@ -45,11 +44,13 @@ TTFOUNDATION_EXPORT TTSymbol		kTTSym_maxNumChannels			(("maxNumChannels"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_mode						(("mode"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_name						(("name"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_none						(("none"));
+TTFOUNDATION_EXPORT TTSymbol        kTTSym_notification             (("notification"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_notify					(("notify"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_numChannels				(("numChannels"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_object					(("object"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_parent					(("parent"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_part						(("part"));
+TTFOUNDATION_EXPORT TTSymbol        kTTSym_priority                 (("priority"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_processInPlace			(("processInPlace"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_range					(("range"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_resonance				(("resonance"));
@@ -86,6 +87,8 @@ TTFOUNDATION_EXPORT TTSymbol		kTTSym_matrixarray				(("matrixarray"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_dimensions				(("dimensions"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_type						(("type"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_elementCount				(("elementCount"));
+TTFOUNDATION_EXPORT TTSymbol		kTTSym_samplematrix				(("samplematrix"));
+TTFOUNDATION_EXPORT TTSymbol		kTTSym_buffer                   (("buffer"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_float32					(("float32"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_float64					(("float64"));
 TTFOUNDATION_EXPORT TTSymbol		kTTSym_int8						(("int8"));

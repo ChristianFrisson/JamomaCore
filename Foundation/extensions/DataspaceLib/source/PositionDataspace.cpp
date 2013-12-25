@@ -29,7 +29,7 @@ Cartesian3DUnit::~Cartesian3DUnit(){;}
 
 void Cartesian3DUnit::convertToNeutral(const TTValue& input, TTValue& output)
 {
-	output.setSize(3);
+	output.resize(3);
 	output = input;
 }
 
@@ -37,7 +37,7 @@ void Cartesian3DUnit::convertToNeutral(const TTValue& input, TTValue& output)
 void Cartesian3DUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 {
 	output = input;
-	output.setSize(3);
+	output.resize(3);
 }
 
 
@@ -65,7 +65,7 @@ void Cartesian2DUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	input.get(0, x);
 	input.get(1, y);
 	
-	output.setSize(3);
+	output.resize(3);
     output.set(0, x);
     output.set(1, y);
 	output.set(2, 0.0);
@@ -74,7 +74,7 @@ void Cartesian2DUnit::convertToNeutral(const TTValue& input, TTValue& output)
 void Cartesian2DUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 {
 	output = input;
-	output.setSize(2);
+	output.resize(2);
 }
 
 
@@ -110,7 +110,7 @@ void SphericalUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	ee *= kTTDegreesToRadians;
 	temp = cos(ee) * dd;
 	
-	output.setSize(3);
+	output.resize(3);
 	output.set(0, sin(aa) * temp); 
 	output.set(1, cos(aa) * temp); 
 	output.set(2, sin(ee) * dd);
@@ -130,7 +130,7 @@ void SphericalUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 	temp = (xx * xx) + (yy * yy);
 
-	output.setSize(3);	
+	output.resize(3);	
 	output.set(0, atan2(xx, yy) * kTTRadiansToDegrees); 
 	output.set(1, atan2(zz, (pow((temp), 0.5))) * kTTRadiansToDegrees);
 	output.set(2, pow((temp + (zz * zz)), 0.5));
@@ -162,7 +162,7 @@ void PolarUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	input.get(1, dd);
 	aa *= kTTDegreesToRadians;
 
-    output.setSize(3);
+    output.resize(3);
 	output.set(0, sin(aa) * dd);	// x
 	output.set(1, cos(aa) * dd);	// y
 	output.set(2, 0);				// z
@@ -177,7 +177,7 @@ void PolarUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 	input.get(0, xx);
 	input.get(1, yy);
 
-	output.setSize(2);	
+	output.resize(2);	
 	output.set(0, atan2(xx, yy) * kTTRadiansToDegrees); //a
 	output.set(1, pow(((xx * xx) + (yy * yy)), 0.5)); //distance	
 }
@@ -209,7 +209,7 @@ void OpenGlUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	input.get(1, y);
 	input.get(2, z);
 	
-	output.setSize(3);
+	output.resize(3);
 	output.set(0, x);
 	output.set(1, -1.0 * z);
 	output.set(2, y);
@@ -226,7 +226,7 @@ void OpenGlUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 	input.get(1, y);
 	input.get(2, z);
 	
-	output.setSize(3);
+	output.resize(3);
 	output.set(0, x);
 	output.set(1, z);
 	output.set(2, y * -1.0);
@@ -262,7 +262,7 @@ void CylindricalUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	input.get(2, zz);
 	aa *= kTTDegreesToRadians;
 				
-	output.setSize(3);
+	output.resize(3);
 	output.set(0, sin(aa) * dd); //x
 	output.set(1, cos(aa) * dd); //y
 	output.set(2, zz); //z
@@ -280,7 +280,7 @@ void CylindricalUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 	input.get(2, zz);
 	
 	// d a z
-	output.setSize(3);
+	output.resize(3);
 	output.set(0, pow(((xx * xx) + (yy * yy)), 0.5)); //distance
 	output.set(1, atan2(xx, yy) * kTTRadiansToDegrees); //a
 	output.set(2, zz);//z
@@ -295,7 +295,7 @@ void CylindricalUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			PositionDataspace
 #define thisTTClassName		"dataspace.position"
-#define thisTTClassTags		"dataspace, position"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, position"
 
 TT_OBJECT_CONSTRUCTOR
 {

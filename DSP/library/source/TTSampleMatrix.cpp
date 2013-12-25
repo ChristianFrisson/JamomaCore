@@ -15,13 +15,13 @@
 
 #include "TTSampleMatrix.h"
 #include "TTInterpolate.h"
-#include "TTSoundfileLoader.h"
+//#include "TTSoundfileLoader.h"
 
 #define thisTTClass			TTSampleMatrix
 #define thisTTClassName		"samplematrix"
-#define thisTTClassTags		"audio, buffer"
+#define thisTTClassTags		"dspLibrary, audio, buffer"
 
-TTObjectBasePtr TTSampleMatrix::instantiate(TTSymbol& name, TTValue& arguments)
+TTObjectBasePtr TTSampleMatrix::instantiate(TTSymbol name, TTValue arguments)
 {
 	return new TTSampleMatrix(arguments);
 }
@@ -33,7 +33,7 @@ extern "C" void TTSampleMatrix::registerClass()
 }
 
 
-TTSampleMatrix::TTSampleMatrix(TTValue& arguments) : 
+TTSampleMatrix::TTSampleMatrix(const TTValue& arguments) :
 	TTMatrix(arguments),
 	mSampleRate(44100.0)
 {
@@ -48,7 +48,7 @@ TTSampleMatrix::TTSampleMatrix(TTValue& arguments) :
 	addAttributeWithGetterAndSetter(LengthInSamples,	kTypeInt32);
 	addAttribute(SampleRate,							kTypeFloat64);
 	addAttribute(				UserCount,				kTypeUInt16); 
-		addAttributeProperty(	UserCount, 				readOnly, kTTBoolYes);
+		addAttributeProperty(	UserCount, 				readOnly, YES);
 	
 	addMessage(normalize);
 	addMessageWithArguments(fill);
@@ -59,6 +59,8 @@ TTSampleMatrix::TTSampleMatrix(TTValue& arguments) :
 
 	addMessageWithArguments(setValueAtIndex);
 	registerMessage("poke", (TTMethod)&TTSampleMatrix::setValueAtIndex);
+    
+    addMessageWithArguments(load);
 
 	// TODO: more messages to implement
 	//	"readFile"   (requires libsndfile straightening-out)
@@ -135,19 +137,20 @@ TTErr TTSampleMatrix::decrementUserCount()
 
 TTErr TTSampleMatrix::getValueAtIndex(const TTValue& index, TTValue &output)
 {
-	TTRowID		sampleIndex;
+	TTRowID         sampleIndex;
 	TTColumnID		sampleChannel = 0;
 	TTSampleValue	sampleValue;
-	TTUInt8			i = 0;
 	TTErr			err;
 
-	index.get(i++, sampleIndex);
-	if (index.size() > 2)
-		index.get(i++, sampleChannel);
+	sampleIndex = index[0];
+	if (index.size() > 1) {
+		sampleChannel = index[1];
+    }
 
 	err = peek(sampleIndex, sampleChannel, sampleValue);
 	if (!err)
-		output.set(i++, sampleValue);
+		output.clear();
+        output.append(sampleValue);
 	return err;
 }
 
@@ -208,15 +211,17 @@ TTErr TTSampleMatrix::peeki(const TTFloat64 index, const TTColumnID channel, TTS
 */
 TTErr TTSampleMatrix::setValueAtIndex(const TTValue& index, TTValue& unusedOutput)
 {
-	TTRowID		sampleIndex;
+	TTRowID         sampleIndex;
 	TTColumnID		sampleChannel = 0;
 	TTSampleValue	sampleValue;
-	TTUInt8			i = 0;
 
-	index.get(i++, sampleIndex);
-	if (index.size() > 2)
-		index.get(i++, sampleChannel);
-	index.get(i++, sampleValue);
+	sampleIndex = index[0];
+	if (index.size() > 2) {
+		sampleChannel = index[1];
+        sampleValue = index[2];
+    } else {
+        sampleValue = index[1];
+    }
 
 	return poke(sampleIndex, sampleChannel, sampleValue);
 }

@@ -22,7 +22,7 @@
 
 
 /** 
- This class is used to create a backward communication to notify a client that something changed in the #TTnode.
+ This class is used to be sensitive to any TTObject notifications and report them using a function with baton and value
  We will subclass TTObject in order to gain some functionality -- like observers and notifications.
  */
 class TTFOUNDATION_EXPORT TTCallback : public TTObjectBase
@@ -31,13 +31,18 @@ class TTFOUNDATION_EXPORT TTCallback : public TTObjectBase
 
 protected:
 
-	TTFunctionWithBatonAndValue	mFunction;	///< Function called when the notify message is engaged.
-	TTPtr						mBaton;		///< User data to be passed back when the callback is triggered.
+	TTFunctionWithBatonAndValue	mFunction;          ///< Function called when the notify message is engaged.
+	TTPtr						mBaton;             ///< User data to be passed back when the callback is triggered.
+    TTSymbol                    mNotification;      ///< the notification the callback is sensitive to
+
+private:
+    /** Set to which notification the callback is sensitive to
+     @param	value           a symbol
+     @return                kTTErrNone */
+    TTErr setNotification(const TTValue& value);
 	
 public:
-	
-	TTSymbol					mOwner;		///< A symbol usefull to know the owner of the TTCallback
-	
+
 	/**	Message called because we are registered as an observer to some other object, and then calls our external function.
 	 @param anInputValue			TODO: Add info
 	 @param anUnusedOutputValue		TODO: Add info
@@ -45,17 +50,17 @@ public:
 	 */
 	TTErr notify(const TTValue& anInputValue, TTValue &anUnusedOutputValue);
 	
+	TTErr deliver(const TTValue anInputValue)
+	{
+		TTValue unused;
+		return notify(anInputValue, unused);
+	}
+	
+	
 	/**	Usefull to easily free the baton in case the pointer is a TTValue of something which need to be freed corectly.
 	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
 	 */
 	TTPtr getBaton(){return mBaton;};
-	
-	/** Set the owner of this callback object.
-	 @param input					TODO: Add info
-	 @return						#TTErr error code if the method fails to execute, else #kTTErrNone.
-	 */
-	TTErr setOwner(const TTValue& input);
-
 };
 
 /** Pointer to a #TTCallback object.

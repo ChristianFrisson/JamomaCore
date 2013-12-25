@@ -47,7 +47,7 @@ void NoneUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			NoneDataspace
 #define thisTTClassName		"dataspace.none"
-#define thisTTClassTags		"dataspace, none"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, none"
 
 TT_OBJECT_CONSTRUCTOR
 {

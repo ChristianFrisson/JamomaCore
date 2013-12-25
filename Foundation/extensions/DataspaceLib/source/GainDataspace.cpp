@@ -105,7 +105,7 @@ void DecibelUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			GainDataspace
 #define thisTTClassName		"dataspace.gain"
-#define thisTTClassTags		"dataspace, gain"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, gain"
 
 TT_OBJECT_CONSTRUCTOR
 {

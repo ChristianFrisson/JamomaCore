@@ -8,7 +8,6 @@ sources:
   - sources/TTMuteSolo.cpp
   - sources/TTOverdrive.cpp
   - sources/TTPanorama.cpp
-  - sources/TTPulseSub.cpp    
   - sources/TTThru.cpp  
   - sources/TTWaveshaper.cpp
   - tests/TTGain.test.cpp

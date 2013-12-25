@@ -159,7 +159,7 @@ void MeterPerSecondUnit::convertFromNeutral(const TTValue& input, TTValue& outpu
 
 #define thisTTClass			SpeedDataspace
 #define thisTTClassName		"dataspace.speed"
-#define thisTTClassTags		"dataspace, speed"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, speed"
 
 TT_OBJECT_CONSTRUCTOR
 {

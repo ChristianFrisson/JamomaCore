@@ -391,7 +391,7 @@ void SpeedUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			TimeDataspace
 #define thisTTClassName		"dataspace.time"
-#define thisTTClassTags		"dataspace, time"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, time"
 
 
 TT_OBJECT_CONSTRUCTOR

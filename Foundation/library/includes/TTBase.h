@@ -164,12 +164,22 @@ typedef unsigned char		TTUInt8;				///< 8 bit unsigned integer (char)
 typedef signed short		TTInt16;				///< 16 bit signed integer
 typedef unsigned short		TTUInt16;				///< 16 bit unsigned integer
 
+#ifdef USE_PROBLEMATIC_FOR_CPP_DUE_TO_AMBIGUITY_INT_TYPE
 #ifdef __LP64__		// Mac 64-bit
 	typedef signed int			TTInt32;			///< 32 bit signed integer
 	typedef unsigned int		TTUInt32;			///< 32 bit unsigned integer
 #else				// Mac 32-bit, Win32 32-bit
 	typedef signed long			TTInt32;			///< 32 bit signed integer
 	typedef unsigned long		TTUInt32;			///< 32 bit unsigned integer
+#endif
+#else
+#define TTInt32 int
+#ifdef __LP64__		// Mac 64-bit
+typedef unsigned int		TTUInt32;			///< 32 bit unsigned integer
+#else				// Mac 32-bit, Win32 32-bit
+typedef unsigned long		TTUInt32;			///< 32 bit unsigned integer
+#endif
+
 #endif
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
@@ -259,6 +269,7 @@ enum TTDataType {
 	kTypeString,
 	kTypeLocalValue,	///< This is a special type used by TTAttribute to indicate that a value is a TTValue and is locally maintained.
 	kTypeMatrix,		///< An instance of a TTMatrix object
+	kTypeDictionary,
 	kNumTTDataTypes
 };
 
@@ -334,19 +345,8 @@ enum TTErr {
 // Class Specifications
 
 
-class TTDeletePtr {
-public:
-	template<typename T>
-	void operator()(T ptr)
-	{
-		delete ptr;
-		ptr = NULL;
-	}
-};
-
-
 /**	A TTBlue exception is thown with this object. */
-class TTFOUNDATION_EXPORT TTException {
+class TTException {
 	TTImmutableCString	reason;
 public:
 	TTException(TTImmutableCString aReason)

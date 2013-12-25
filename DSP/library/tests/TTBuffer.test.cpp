@@ -1,24 +1,23 @@
-/* 
- * Unit tests for the TTBuffer Object for Jamoma DSP
- * Copyright © 2012, Nathan Wolek
- * 
- * License: This code is licensed under the terms of the "New BSD License"
+/** @file
+ *
+ * @ingroup dspLibrary
+ *
+ * @brief Unit tests for the #TTBuffer class
+ *
+ * @details
+ *
+ * @see TTBuffer
+ *
+ * @authors Nathan Wolek
+ *
+ * @copyright Copyright © 2012 by Nathan Wolek @n
+ * This code is licensed under the terms of the "New BSD License" @n
  * http://creativecommons.org/licenses/BSD/
  */
 
+
 #include "TTBuffer.h"
 
-/* */
- #define TESTFILE "/Volumes/Storage/Audio/200604femf15/pitched/ding_b2.aiff"
- #define TESTNUMCHANNELS 1
- #define TESTSAMPLERATE 44100
- #define TESTDURATIONINSAMPLES 39493
- #define TESTDURATIONINSECONDS 0.89553288
- #define TESTTITLE ""
- #define TESTARTIST ""
- #define TESTDATE ""
- #define TESTANNOTATION ""
-/* */
 
 TTErr TTBuffer::test(TTValue& returnedTestInfo)
 {
@@ -46,6 +45,10 @@ TTErr TTBuffer::test(TTValue& returnedTestInfo)
 					result1,
 					testAssertionCount, 
 					errorCount);
+	
+	// if it failed then we need to abort further testing to avoid a crash dereferencing a bogus pointer
+	if (!myFirstCheckOut)
+		return TTTestFinish(testAssertionCount, errorCount, returnedTestInfo);
 	
 	// TEST 2: how many channels does this matrix have?
 	TTInt32 test2expect = 1;
@@ -275,57 +278,13 @@ TTErr TTBuffer::test(TTValue& returnedTestInfo)
 					testAssertionCount, 
 					errorCount);
     
-    TTTestLog("\nTesting load process for soundfiles...");
-    
-    TTInt16				numChannels17 = 1;
-	TTUInt32			numSamples17 = 500;  // TODO: xcode says this is ambiguous when signed?
-    
-    this->setAttributeValue("numChannels", numChannels17);
-    this->setAttributeValue("lengthInSamples", numSamples17);
-    
-    TTTestLog("The samplematrix currently has %i samples and %i channels", numSamples17, numChannels17);
-    
-    // set up TTValues passed to the public method
-    TTValue loadInput, loadOuput;
-    loadInput.append(TT(TESTFILE));
-    
-    
-    TTBoolean result17 = { this->load(loadInput, loadOuput) == kTTErrNone };
-    
-    TTTestAssertion("load operates successfully",
-                    result17,
-                    testAssertionCount,
-                    errorCount);
-    
-    TTTestLog("Let's look at the first 10 values...");
-    
-    TTSampleValue return17b;
-    TTErr error17b;
-    TTSampleMatrixPtr loadedMatrix;
-    this->checkOutMatrix(loadedMatrix);
-    
-    for (int channel=0;channel<numChannels17;channel++)
-    {
-        TTTestLog("Channel %i", channel);
-        for (int sample=0;sample<10;sample++)
-        {
-            error17b = loadedMatrix->peek(sample,channel,return17b);
-            if (error17b == kTTErrNone)
-            {
-                TTTestLog("peek sample %i returned the value %f", sample, return17b);
-            } else {
-                TTTestLog("peek returned an error for sample %i", sample);
-            }
-        }
-    }
-    
-    this->checkInMatrix(loadedMatrix);
+
 
 	// The following is effectively taken care of through check in...
 	//TTObjectRelease(&myFirstCheckOut);
 	//TTObjectRelease(&mySecondCheckOut);
 	//TTObjectRelease(&myThirdCheckOut);
-	
+
 	// Wrap up the test results to pass back to whoever called this test
 	return TTTestFinish(testAssertionCount, errorCount, returnedTestInfo);
 	

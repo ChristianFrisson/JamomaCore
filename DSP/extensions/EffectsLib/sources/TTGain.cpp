@@ -10,7 +10,7 @@
 
 #define thisTTClass			TTGain
 #define thisTTClassName		"gain"
-#define thisTTClassTags		"audio, processor, dynamics, mixing"
+#define thisTTClassTags		"dspEffectsLib, audio, processor, dynamics, mixing"
 
 
 TT_AUDIO_CONSTRUCTOR

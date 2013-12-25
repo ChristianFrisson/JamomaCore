@@ -287,7 +287,7 @@ TTErr TTAddressBase::parse()
 		else
 			s_parent = TTString(ttRegexForParent->begin(), ttRegexForParent->end());
 		
-		s_toParse = TTString(ttRegexForParent->end()+1, end);               // +1 to remove "/"
+		s_toParse = TTString(ttRegexForParent->end()+1, end-1);               // +1 to remove "/", -1 to remove a useless \0
 		
 		begin = s_toParse.begin();
 		end = s_toParse.end();
@@ -477,19 +477,14 @@ TTErr TTAddressBase::listNameInstance(TTList& nameInstanceList)
 		
 		this->parent->listNameInstance(nameInstanceList);
         
-        // append directory:/name
+        // if there is a directory part : append directory and ""
         if (directory != NO_DIRECTORY) {
             
-            TTString s = directory.string();
-            s += S_DIRECTORY.string();
-            s += name;
-            
-            nameInstanceList.append(TTSymbol(s));
+            nameInstanceList.append(directory);
+            nameInstanceList.append(kTTSymEmpty);
         }
-        // or append name
-        else
-            nameInstanceList.append(name);
-        
+
+        nameInstanceList.append(name);
 		nameInstanceList.append(instance);
 	}
     

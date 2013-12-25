@@ -31,14 +31,14 @@ QuaternionUnit::~QuaternionUnit(){;}
 
 void QuaternionUnit::convertToNeutral(const TTValue& input, TTValue& output)
 {
-	//output.setSize(4);
+	//output.resize(4);
 	output = input;
 }
 
 
 void QuaternionUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 {
-	//output.setSize(4);
+	//output.resize(4);
 	output = input;	
 }
 
@@ -80,7 +80,7 @@ void EulerUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	TTFloat64 cosPitchCosRoll(cosPitch*cosRoll);
 	TTFloat64 sinPitchSinRoll(sinPitch*sinRoll);
 	
-	output.setSize(4);	
+	output.resize(4);	
 	output.set(0, cosYaw * sinPitch * cosRoll  - sinYaw * cosPitch * sinRoll); //X	
 	output.set(1, cosYaw * cosPitch * sinRoll  + sinYaw * sinPitch * cosRoll); //Y
 	output.set(2, sinYaw * cosPitchCosRoll     + cosYaw * sinPitchSinRoll); //Z
@@ -100,7 +100,7 @@ void EulerUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 	input.get(2, Z);
 	input.get(3, W);
 	
-	output.setSize(3);
+	output.resize(3);
 	output.set(0, kTTRadiansToDegrees * atan2(-2*(Z*W-X*Y), W*W - X*X + Y*Y - Z*Z)); //yaw
 	output.set(1, kTTRadiansToDegrees * asin(2*(W*X + Y*Z))); //pitch
 	output.set(2, kTTRadiansToDegrees * atan2(2*(W*Y + X*Z), W*W - X*X - Y*Y + Z*Z)); //roll
@@ -146,7 +146,7 @@ void AxisUnit::convertToNeutral(const TTValue& input, TTValue& output)
 	y = y * n;
 	z = z * n;	*/
 	
-	output.setSize(4);
+	output.resize(4);
 	output.set(0, x * n * sinAngle); //X
 	output.set(1, y * n * sinAngle); //Y
 	output.set(2, z * n * sinAngle); //Z
@@ -165,7 +165,7 @@ void AxisUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 		
 	TTFloat64 sin_a = sqrt( 1.0 - W * W );    
 	
-	output.setSize(4);    
+	output.resize(4);    
 	output.set(3, kTTRadiansToDegrees * 2.0 * atan2(sin_a, W)); //angle
 
 	if ( fabs( sin_a ) < 0.0005 ) 
@@ -186,7 +186,7 @@ void AxisUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			OrientationDataspace
 #define thisTTClassName		"dataspace.orientation"
-#define thisTTClassTags		"dataspace, orientation"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, orientation"
 
 TT_OBJECT_CONSTRUCTOR
 {

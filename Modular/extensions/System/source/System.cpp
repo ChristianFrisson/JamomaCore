@@ -38,7 +38,7 @@ mThread(NULL)
 {	
 	SCHEDULER_INITIALIZE
     
-    addAttribute(Granularity, kTypeUInt32);
+    addAttribute(Granularity, kTypeFloat64);
 }
 
 System::~System()
@@ -56,7 +56,9 @@ System::~System()
 TTErr System::getParameterNames(TTValue& value)
 {
 	value.clear();
-	//value.append(TTSymbol("aParameter"));
+	value.append(TTSymbol("granularity"));
+    value.append(TTSymbol("offset"));
+    value.append(TTSymbol("speed"));
 	
 	return kTTErrNone;
 }
@@ -64,22 +66,18 @@ TTErr System::getParameterNames(TTValue& value)
 TTErr System::Go()
 {
     // do we need to ramp at all ?
-    if (mDuration <= 0.) {
+    if (mDuration <= mOffset) {
         
         mRunning = NO;
+        mPaused = NO;
         mProgression = 0.;
         mRealTime = 0.;
         
-        (mCallback)(mBaton, mProgression);
+        (mCallback)(mBaton, mProgression, mRealTime);
         
-        // notify each running attribute observers
-        runningAttribute->sendNotification(kTTSym_notify, mRunning);          // we use kTTSym_notify because we know that observers are TTCallback
-        
-        // notify each progression attribute observers
-        progressionAttribute->sendNotification(kTTSym_notify, mProgression);  // we use kTTSym_notify because we know that observers are TTCallback
-        
-        // notify each elapsed time attribute observers
-        realTimeAttribute->sendNotification(kTTSym_notify, mRealTime);  // we use kTTSym_notify because we know that observers are TTCallback
+        // notify each observers
+        sendNotification(TTSymbol("SchedulerRunningChanged"), mRunning);
+        sendNotification(TTSymbol("SchedulerTicked"), TTValue(mProgression, mRealTime));
     }
     // if the thread is not running
     else if (mThread == NULL) {
@@ -95,6 +93,7 @@ TTErr System::Go()
 TTErr System::Stop()
 {
 	mRunning = NO;
+    mPaused = NO;
     
     // if a thread is running
     if (mThread) {
@@ -104,44 +103,51 @@ TTErr System::Stop()
         delete mThread;
         mThread = NULL;
     
-        // notify each running attribute observers
-        runningAttribute->sendNotification(kTTSym_notify, mRunning);          // we use kTTSym_notify because we know that observers are TTCallback
+        // notify each observers
+        sendNotification(TTSymbol("SchedulerRunningChanged"), mRunning);
     }
+    
+    // reset all time info
+    mOffset = 0.;
+    mProgression = 0.;
+    mRealTime = 0.;
     
     return kTTErrNone;
 }
 
 TTErr System::Tick()
 {
-    TTFloat64 delta = computeDeltaTime();
+    TTFloat64 delta = computeDeltaTime() * mSpeed;
     
-    mProgression += (delta * mSpeed) / mDuration;
+    if (mPaused)
+        return kTTErrNone;
+    
+    mProgression += delta / mDuration;
     mRealTime += delta;
     
     if (mProgression < 1.) {
         
-        (mCallback)(mBaton, mProgression);
+        // notify the owner
+        (mCallback)(mBaton, mProgression, mRealTime);
         
-        // notify each progression attribute observers
-        progressionAttribute->sendNotification(kTTSym_notify, mProgression);    // we use kTTSym_notify because we know that observers are TTCallback
-        
-        // notify each elapsed time attribute observers
-        realTimeAttribute->sendNotification(kTTSym_notify, mRealTime);          // we use kTTSym_notify because we know that observers are TTCallback
+        // notify each observers
+        sendNotification(TTSymbol("SchedulerTicked"), TTValue(mProgression, mRealTime));
     }
     else {
         
-        mRunning = NO;
+        // forcing progression to 1. to allow filtering
+        mProgression = 1.;
         
-        (mCallback)(mBaton, mProgression);
+        // notify the owner
+        (mCallback)(mBaton, mProgression, mRealTime);
         
-        // notify each progression attribute observers
-        progressionAttribute->sendNotification(kTTSym_notify, mProgression);    // we use kTTSym_notify because we know that observers are TTCallback
+        // notify each observers
+        sendNotification(TTSymbol("SchedulerTicked"), TTValue(mProgression, mRealTime));
         
-        // notify each elapsed time attribute observers
-        realTimeAttribute->sendNotification(kTTSym_notify, mRealTime);          // we use kTTSym_notify because we know that observers are TTCallback
-        
-        // notify each running attribute observers
-        runningAttribute->sendNotification(kTTSym_notify, mRunning);            // we use kTTSym_notify because we know that observers are TTCallback
+        // if the scheduler is still running : stop it
+        // note : because it  is possible another thread stop the scheduler before
+        if (mRunning)
+            Stop();
     }
     
     return kTTErrNone;
@@ -149,33 +155,54 @@ TTErr System::Tick()
 
 TTErr System::Pause()
 {
-    return kTTErrGeneric;
+    mPaused = YES;
+    
+    return kTTErrNone;
 }
 
 TTErr System::Resume()
 {
-    return kTTErrGeneric;
+    mPaused = NO;
+    
+    return kTTErrNone;
 }
 
 TTFloat64 System::computeDeltaTime()
 {
-	struct timeval tv;
-	struct timezone tz;
-    
 	TTUInt64 deltaInUs = 0;
     TTUInt64 granularityInUs = mGranularity * 1000;
 
-    // get the current time (in µs)
-    gettimeofday(&tv, &tz);
+	struct timeval tv;
+
+	// get the current time (in µs)
+	#ifdef TT_PLATFORM_WIN
+		Time2 time2;
+		time2.gettimeofday(&tv, NULL);
+	#else
+		struct timezone tz;
+		gettimeofday(&tv, &tz);
+	#endif
+
 	TTUInt64 currentTime = tv.tv_sec * 1000000L + tv.tv_usec;
     
 	if (mLastTime != 0) {
         
-		deltaInUs = (currentTime - mLastTime);
+        // it seems the currentTime is lower than the lastTime sometimes ...
+        if (currentTime < mLastTime) {
+            
+            TTLogMessage("System::computeDeltaTime() : currentTime (%Lu) is lower than lastTime (%Lu)\n", currentTime, mLastTime);
+            deltaInUs = 0;
+        }
+        else
+            deltaInUs = (currentTime - mLastTime);
         
 		if (deltaInUs < granularityInUs) {
             
-			usleep(granularityInUs - deltaInUs);
+			#ifdef TT_PLATFORM_WIN
+				Sleep((granularityInUs - deltaInUs) / 1000);
+			#else
+				usleep(granularityInUs - deltaInUs);
+			#endif
             
 			deltaInUs = granularityInUs;
 		}
@@ -195,12 +222,11 @@ void SystemThreadCallback(void* anSystemScheduler)
     
     // reset timing informations
     aScheduler->mRunning = YES;
-    aScheduler->mProgression = 0.;
-    aScheduler->mRealTime = 0.;
-    aScheduler->mLastTime = 0;
+    aScheduler->mPaused = NO;
+    aScheduler->mLastTime = 0.;
     
-    // notify each running attribute observers
-    aScheduler->runningAttribute->sendNotification(kTTSym_notify, aScheduler->mRunning);          // we use kTTSym_notify because we know that observers are TTCallback
+    // notify each observers
+    aScheduler->sendNotification(TTSymbol("SchedulerRunningChanged"), aScheduler->mRunning);
     
     // launch the tick if the duration is valid and while it have to run
     if (aScheduler->mDuration > 0.)

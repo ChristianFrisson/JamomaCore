@@ -59,9 +59,11 @@ public:
 	
 	// public method to check out the mActiveMatrix
 	TTErr checkOutMatrix(TTSampleMatrixPtr& startUsingThisMatrix);
+    TTErr checkOutMatrixValues(const TTValueRef unusedInput, TTValueRef output);
 	
 	// public method to check in TTSampleMatrix. if it is no longer mActiveMatrix, action is taken.
 	TTErr checkInMatrix(TTSampleMatrixPtr& doneUsingThisMatrix);
+    TTErr checkInMatrixValues(const TTValueRef input, TTValueRef unusedOutput);
 	
 	TTErr getNames(const TTValueRef unusedInput, TTValueRef returnedNames)
 	{
@@ -179,5 +181,37 @@ public:
 };
 
 typedef TTBuffer* TTBufferPtr;
+
+/** Wrap TTBuffer instances for convenience. */
+class TTAudioBuffer : public TTObject {
+public:
+	TTAudioBuffer(const TTValue& channelCount, const TTValue& sampleCount):
+	TTObject(kTTSym_buffer, channelCount)
+	{
+        instance()->setLengthInSamples(sampleCount);
+    }
+    
+    TTBufferPtr instance()
+	{
+		return (TTBufferPtr)mObjectInstance;
+	}
+    
+    TTErr load(const TTValue &value)
+    {
+        TTValue unusedOuput;
+        return instance()->load(value, unusedOuput);
+    }
+    
+    TTErr checkOutMatrix(TTSampleMatrixPtr& startUsingThisMatrix)
+    {
+        return instance()->checkOutMatrix(startUsingThisMatrix);
+    }
+    
+    TTErr checkInMatrix(TTSampleMatrixPtr& doneUsingThisMatrix)
+    {
+        return instance()->checkInMatrix(doneUsingThisMatrix);
+    }
+    
+};
 
 #endif // __TT_BUFFER_H__

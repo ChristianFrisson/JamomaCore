@@ -29,7 +29,7 @@ CelsiusUnit::~CelsiusUnit(){;}
 
 void CelsiusUnit::convertToNeutral(const TTValue& input, TTValue& output)
 {
-//	output.setSize(1);
+//	output.resize(1);
 //	*output = atom_getfloat(inputAtoms) + 273.15;
 	output = TTFloat64(input) + 273.15;
 }
@@ -37,7 +37,7 @@ void CelsiusUnit::convertToNeutral(const TTValue& input, TTValue& output)
 
 void CelsiusUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 {
-//	output.setSize(1);
+//	output.resize(1);
 //	atom_setfloat(*outputAtoms, *input - 273.15);
 	output = TTFloat64(input) - 273.15;
 }
@@ -61,7 +61,7 @@ FahrenheitUnit::~FahrenheitUnit(){;}
 
 void FahrenheitUnit::convertToNeutral(const TTValue& input, TTValue& output)
 {
-//	output.setSize(1);
+//	output.resize(1);
 //	*output = (atom_getfloat(inputAtoms) + 459.67) / 1.8;
 	output = (TTFloat64(input) + 459.67) / 1.8;
 }
@@ -69,7 +69,7 @@ void FahrenheitUnit::convertToNeutral(const TTValue& input, TTValue& output)
 
 void FahrenheitUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 {
-//	output.setSize(1);
+//	output.resize(1);
 //	atom_setfloat(*outputAtoms, (*input * 1.8) - 459.67);
 	output = TTFloat64(input) * 1.8 - 459.67;
 }
@@ -111,7 +111,7 @@ void KelvinUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			TemperatureDataspace
 #define thisTTClassName		"dataspace.temperature"
-#define thisTTClassTags		"dataspace, temperature"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, temperature"
 
 TT_OBJECT_CONSTRUCTOR
 {

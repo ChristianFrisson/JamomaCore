@@ -77,7 +77,7 @@ void DegreeUnit::convertFromNeutral(const TTValue& input, TTValue& output)
 
 #define thisTTClass			AngleDataspace
 #define thisTTClassName		"dataspace.angle"
-#define thisTTClassTags		"dataspace, angle"
+#define thisTTClassTags		"foundationDataspaceLib, dataspace, angle"
 
 TT_OBJECT_CONSTRUCTOR
 {	
